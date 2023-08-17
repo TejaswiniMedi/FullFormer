@@ -8,7 +8,7 @@ kdtree, grid_points  = None, None
 def voxelized_pointcloud_sampling(path):
     try:
         # input_res represents the desired voxel resolution for sampled points.
-        input_res = 32
+        input_res = 256
         
         # num_points --> number of points sampled from each ground truth shape.
         num_points = 5000
