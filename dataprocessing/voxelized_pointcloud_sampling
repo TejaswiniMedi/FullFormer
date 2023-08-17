@@ -1,0 +1,61 @@
+from scipy.spatial import cKDTree as KDTree
+import numpy as np
+import trimesh
+import os
+import traceback
+
+kdtree, grid_points  = None, None
+def voxelized_pointcloud_sampling(path):
+    try:
+        # input_res represents the desired voxel resolution for sampled points.
+        input_res = 32
+        
+        # num_points --> number of points sampled from each ground truth shape.
+        num_points = 5000
+        
+        # Training and testing shapes are normalized to be in a common bounding box.
+        # The bb_min and bb_max values define the min value and max value in x,y and z for the bounding box.
+        bb_min = -0.5
+        bb_max = 0.5
+        
+        out_path = os.path.dirname(path)
+        file_name = os.path.splitext(os.path.basename(path))[0]
+        input_file = os.path.join(out_path,file_name + '_scaled.off')
+        out_file = out_path + '/voxelized_point_cloud_{}res_{}points.npz'.format(input_res, num_points)
+        if os.path.exists(out_file):
+            print(f'Exists: {out_file}')
+            return
+        # load input mesh file
+        mesh = trimesh.load(input_file)
+        point_cloud = mesh.sample(num_points)
+        occupancies = np.zeros(len(grid_points), dtype=np.int8)
+        _, idx = kdtree.query(point_cloud)
+        occupancies[idx] = 1
+        compressed_occupancies = np.packbits(occupancies)
+
+        # save voxelized point cloud
+        np.savez(out_file, point_cloud=point_cloud, compressed_occupancies = compressed_occupancies, bb_min = bb_min, bb_max = bb_max, res = input_res)
+        print('Finished: {}'.format(path))
+    except Exception as err:
+        print('Error with {}: {}'.format(path, traceback.format_exc()))
+
+def init():
+    global kdtree, grid_points
+    # Training and testing shapes are normalized to be in a common bounding box.
+    # The bb_min and bb_max values define the min value and max value in x,y and z for the bounding box.
+    bb_min = -0.5
+    bb_max = 0.5
+    # input_res represents the desired voxel resolution for sampled points.
+    input_res = 32
+    grid_points = create_grid_points_from_bounds(bb_min, bb_max, input_res)
+    kdtree = KDTree(grid_points)
+
+def create_grid_points_from_bounds(minimun, maximum, res):
+    x = np.linspace(minimun, maximum, res)
+    X, Y, Z = np.meshgrid(x, x, x, indexing='ij')
+    X = X.reshape((np.prod(X.shape),))
+    Y = Y.reshape((np.prod(Y.shape),))
+    Z = Z.reshape((np.prod(Z.shape),))
+    points_list = np.column_stack((X, Y, Z))
+    del X, Y, Z, x
+    return points_list
