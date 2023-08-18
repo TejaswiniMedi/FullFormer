@@ -17,5 +17,37 @@ conda env create -f env.yml
 
 conda activate VQDIG
 ```
+## Data
+To replicate our experiments, please download the corresponding raw [ShapeNet data](https://shapenet.org/) 
+
+## Experimental Preparation:
+For processing raw data for our model 
+```
+python preprocess.py 
+```
+To split the random train/validation/test split of data
+```
+python dataprocessing/create_split.py
+```
+## Reconstruction
+To train autoencoder of our model
+```
+python train.py
+```
+To generate reconstruction results
+```
+python generate.py
+```
+## Generation
+To train the transformer to generate latent codes, which are learned during reconstruction
+```
+python training_transformer.py
+```
+To generate generation results
+```
+python latent generation.py
+```
+## Contact
+For questions and comments please contact [Tejaswini Medi](tejaswini.medi@uni-siegen.de) via mail
 
 
