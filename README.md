@@ -19,6 +19,7 @@ conda activate VQDIG
 ```
 ## Data
 To replicate our experiments, please download the corresponding raw [ShapeNet data](https://shapenet.org/) 
+For FullCars dataset mentioned in paper: [Full Cars](https://www.dropbox.com/scl/fi/pc3j5firmi4rxkm3rl1oy/FullFormer.tar.gz?rlkey=pau3v5hosy68p13scmylhsywv&dl=0)
 
 ## Experimental Preparation:
 For processing raw data for our model 
